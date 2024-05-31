@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/antiLimited/SleepScrobbleDetector/issues"
   },
-  "homepage": "https://github.com/antiLimited/SleepScrobbleDetector#readme"
+  "homepage": "https://github.com/antiLimited/SleepScrobbleDetector#readme",
+  "dependencies": {
+    "@solely/simple-fm": "^1.7.2",
+    "discord.js": "^14.15.2"
+  },
+  "type": "module"
 }
