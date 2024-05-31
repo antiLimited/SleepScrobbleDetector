@@ -48,11 +48,10 @@ client.on(Events.InteractionCreate, async interaction => {
 	try {
 		const username = interaction.options.getString("user")
 		await interaction.reply("what the sigma? "+ username)
-		if (lastclient.user.getInfo({username: username}) != undefined) {
-			await interaction.followUp("valid username!")
-		} else {
-			await interaction.followUp("invalid username!")
-		}
+		const userInf = await lastclient.user.getInfo({username: username})
+		const topArt = await lastclient.user.getTopArtists({username: username})
+		console.log(userInf)
+		await interaction.followUp(username+"'s top artist of all time is ["+topArt.artists[0].name+"]("+topArt.artists[0].url+") with "+topArt.artists[0].scrobbles+" scrobbles!")
 		
 		
 	} catch (error) {
