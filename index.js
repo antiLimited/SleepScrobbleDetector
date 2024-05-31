@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
-import { Client, Collection, Events, GatewayIntentBits, underline } from 'discord.js';
+import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
 import keys from "./keys.json" assert {type: "json"};
 import SimpleFM from '@solely/simple-fm';
 
