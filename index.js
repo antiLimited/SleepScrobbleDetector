@@ -1,18 +1,32 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
-import token from './keys.json' assert {type: "json"};
+import { fileURLToPath } from 'url';
+import { Client, Collection, Events, GatewayIntentBits, underline } from 'discord.js';
+import keys from "./keys.json" assert {type: "json"};
 import SimpleFM from '@solely/simple-fm';
 
-const lastclient = new SimpleFM('Last.fm API key');
+const lastclient = new SimpleFM(keys.lastfmAPIkey);
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
 
-import { data } from "./commands/check.js"
-client.commands.set("check", data);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const foldersPath = path.join(__dirname, 'commands');
+const commandFolders = fs.readdirSync(foldersPath);
+
+for (const folder of commandFolders) {
+	const commandsPath = path.join(foldersPath, folder);
+	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.cjs'));
+	for (const file of commandFiles) {
+		const filePath = path.join(commandsPath, file);
+		const command = await import(filePath);
+		client.commands.set(command.data.name, command);
+	}
+}
 
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
@@ -32,7 +46,15 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 
 	try {
-		await command.execute(interaction);
+		const username = interaction.options.getString("user")
+		await interaction.reply("what the sigma? "+ username)
+		if (lastclient.user.getInfo({username: username}) != undefined) {
+			await interaction.followUp("valid username!")
+		} else {
+			await interaction.followUp("invalid username!")
+		}
+		
+		
 	} catch (error) {
 		console.error(error);
 		if (interaction.replied || interaction.deferred) {
@@ -44,4 +66,4 @@ client.on(Events.InteractionCreate, async interaction => {
 });
 
 // Log in to Discord with your client's token
-client.login(token);
+client.login(keys.token);
