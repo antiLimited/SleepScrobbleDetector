@@ -1,0 +1,19 @@
+{
+  "name": "sleepscrobble",
+  "version": "1.0.0",
+  "description": "A discord bot to detect people who are sleepscrobbling.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antiLimited/SleepScrobbleDetector.git"
+  },
+  "author": "antiLimit",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/antiLimited/SleepScrobbleDetector/issues"
+  },
+  "homepage": "https://github.com/antiLimited/SleepScrobbleDetector#readme"
+}
