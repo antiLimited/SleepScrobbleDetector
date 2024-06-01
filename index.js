@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
-import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
+import { Client, Collection, Events, GatewayIntentBits, EmbedBuilder } from 'discord.js';
 import keys from "./keys.json" assert {type: "json"};
 import SimpleFM from '@solely/simple-fm';
 
@@ -64,7 +64,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			await interaction.editReply("Indexing "+userinfo.name+"'s scrobbles... "+pageNumber+"/"+pageCount+" pages indexed.")
 		}
 		console.log(trackList)
-		await interaction.followUp("Indexing complete!")
+		await interaction.editReply("Indexing complete ("+pageCount+"/"+pageCount+" pages indexed)! Calculating streaks...")
 
 		// Initial streak forming
 		let streakList = []
@@ -85,11 +85,31 @@ client.on(Events.InteractionCreate, async interaction => {
 		// Streak trimmer
 		let trimmedStreakList = []
 		for (let i = 0; i < streakList.length; i++) {
-			if (streakList[i][0] - 14400000 >= streakList[i][streakList[i].length - 1]) {
+			if (streakList[i][0] - 72000000 >= streakList[i][streakList[i].length - 1]) {
 				trimmedStreakList.push(streakList[i])
+				console.log(streakList[i].length)
 			}
 		}
-		console.log(trimmedStreakList)
+		console.log(trimmedStreakList.length)
+
+		// Cutting down to 24 longest streaks
+		let originalTrimmedStreakList = Array.from(trimmedStreakList)
+		trimmedStreakList.sort((a, b) => b.length - a.length);
+		trimmedStreakList.length = 24;
+
+		// Building and sending final embed with info
+		const embed = new EmbedBuilder()
+			.setTitle(userinfo.name+"'s Potential Sleep Scrobble Streaks")
+			.setDescription("A sleep scrobble streak is detected if the selected user has scrobbled at least once every 30 minutes for 20 consecutive hours. Out of "+trackList.length+" scrobbles and "+streakList.length+" streaks, "+userinfo.name+" has "+originalTrimmedStreakList.length+" potential sleep scrobble streaks.\nThe following streaks are the top 24 (or less) measured by amount of scrobbles.")
+  			.setColor("#00b0f4");
+		for (let i = 0; i < trimmedStreakList.length; i++) {
+			embed.addFields({
+				name: "<t:"+trimmedStreakList[i][trimmedStreakList[i].length - 1]/1000+":f> to <t:"+trimmedStreakList[i][0]/1000+":f>",
+				value: trimmedStreakList[i].length+" scrobbles in this time period.",
+				inline: true
+			})
+		}
+		await interaction.followUp({ embeds: [embed] });
 	} catch (error) {
 		console.error(error);
 		if (interaction.replied || interaction.deferred) {
