@@ -46,14 +46,23 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 
 	try {
-		const username = interaction.options.getString("user")
-		await interaction.reply("what the sigma? "+ username)
-		const userInf = await lastclient.user.getInfo({username: username})
-		const topArt = await lastclient.user.getTopArtists({username: username})
-		console.log(userInf)
-		await interaction.followUp(username+"'s top artist of all time is ["+topArt.artists[0].name+"]("+topArt.artists[0].url+") with "+topArt.artists[0].scrobbles+" scrobbles!")
-		
-		
+		const username = interaction.options.getString("user");
+		const userinfo = await lastclient.user.getInfo({username: username});
+		const pageCount = Math.ceil(userinfo.stats.playCount / 200)
+		await interaction.reply("Indexing "+userinfo.name+"'s scrobbles... 0/"+pageCount+" pages indexed.");
+		let trackList = []
+		for (let p = 0; p < pageCount; p++) {
+			const pageNumber = p + 1
+			const page = await lastclient.user.getRecentTracks({username: username, limit: 200, page: pageNumber})
+			for (let s = 0; s < 200; s++) {
+				if (page.tracks[s] != undefined) {
+					trackList.push(page.tracks[s].date)
+				}
+			}
+			await interaction.editReply("Indexing "+userinfo.name+"'s scrobbles... "+pageNumber+"/"+pageCount+" pages indexed.")
+		}
+		console.log(trackList)
+		await interaction.followUp("Indexing complete!")
 	} catch (error) {
 		console.error(error);
 		if (interaction.replied || interaction.deferred) {
