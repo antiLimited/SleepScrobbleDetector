@@ -71,18 +71,25 @@ client.on(Events.InteractionCreate, async interaction => {
 		let tempStreak = []
 		for (let i = 0; i < trackList.length; i++) {
 			if (trackList[i] != NaN) {
-				if (trackList[i] - 3600000 <= trackList[i+1]) {
+				if (trackList[i] - 1800000 <= trackList[i+1]) {
 					tempStreak.push(trackList[i+1])
-					
 				} else {
 					streakList.push(tempStreak)
-					console.log(tempStreak)
-					console.log(i)
 					tempStreak = []
 					tempStreak.push(trackList[i+1])
 				}
 			}
 		}
+		console.log(streakList.length)
+
+		// Streak trimmer
+		let trimmedStreakList = []
+		for (let i = 0; i < streakList.length; i++) {
+			if (streakList[i][0] - 14400000 >= streakList[i][streakList[i].length - 1]) {
+				trimmedStreakList.push(streakList[i])
+			}
+		}
+		console.log(trimmedStreakList)
 	} catch (error) {
 		console.error(error);
 		if (interaction.replied || interaction.deferred) {
