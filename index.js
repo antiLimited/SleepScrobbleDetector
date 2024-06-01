@@ -50,19 +50,39 @@ client.on(Events.InteractionCreate, async interaction => {
 		const userinfo = await lastclient.user.getInfo({username: username});
 		const pageCount = Math.ceil(userinfo.stats.playCount / 200)
 		await interaction.reply("Indexing "+userinfo.name+"'s scrobbles... 0/"+pageCount+" pages indexed.");
+
+		// Indexing track times (UTS)
 		let trackList = []
 		for (let p = 0; p < pageCount; p++) {
 			const pageNumber = p + 1
 			const page = await lastclient.user.getRecentTracks({username: username, limit: 200, page: pageNumber})
 			for (let s = 0; s < 200; s++) {
 				if (page.tracks[s] != undefined) {
-					trackList.push(page.tracks[s].date)
+					trackList.push(Date.parse(page.tracks[s].dateAdded))
 				}
 			}
 			await interaction.editReply("Indexing "+userinfo.name+"'s scrobbles... "+pageNumber+"/"+pageCount+" pages indexed.")
 		}
 		console.log(trackList)
 		await interaction.followUp("Indexing complete!")
+
+		// Initial streak forming
+		let streakList = []
+		let tempStreak = []
+		for (let i = 0; i < trackList.length; i++) {
+			if (trackList[i] != NaN) {
+				if (trackList[i] - 3600000 <= trackList[i+1]) {
+					tempStreak.push(trackList[i+1])
+					
+				} else {
+					streakList.push(tempStreak)
+					console.log(tempStreak)
+					console.log(i)
+					tempStreak = []
+					tempStreak.push(trackList[i+1])
+				}
+			}
+		}
 	} catch (error) {
 		console.error(error);
 		if (interaction.replied || interaction.deferred) {
